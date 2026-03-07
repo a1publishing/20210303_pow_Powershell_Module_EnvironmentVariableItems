@@ -69,6 +69,7 @@ EnvironmentVariableItems PSCustomObject
 #>
 function Add-EnvironmentVariableItem {
     [CmdletBinding()]
+    [Alias('aevi')]
     param (
         [Parameter(
             Mandatory,

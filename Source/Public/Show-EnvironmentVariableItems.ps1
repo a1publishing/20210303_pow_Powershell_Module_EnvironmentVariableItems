@@ -62,6 +62,7 @@ Process
 #>
 function Show-EnvironmentVariableItems {
     [CmdletBinding()]
+    [Alias('sevis')]
     param (
         [Parameter(Mandatory)]
         [ValidatePattern("^[^=]+$")]

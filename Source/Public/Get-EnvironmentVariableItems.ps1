@@ -58,6 +58,7 @@ EnvironmentVariableItems PSCustomObject
 #>
 function Get-EnvironmentVariableItems {
     [CmdletBinding()]
+    [Alias('gevis')]
     param (
         [Parameter(Mandatory)]
         [ValidatePattern("^[^=]+$")]

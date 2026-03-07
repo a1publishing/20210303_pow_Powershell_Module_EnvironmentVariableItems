@@ -106,6 +106,7 @@ EnvironmentVariableItems PSCustomObject
 #>
 function Remove-EnvironmentVariableItem {
     [CmdletBinding()]
+    [Alias('revi')]
     param (
         [Parameter(
             Mandatory,
