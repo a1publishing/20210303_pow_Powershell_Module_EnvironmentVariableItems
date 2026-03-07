@@ -130,8 +130,7 @@ SYNOPSIS
 
 
 SYNTAX
-    Show-EnvironmentVariableItems [-Name] <String> [[-Scope] {Process | User | Machine}] [[-Separator] <String>] [-WhatIf] [-Confirm]
-    [<CommonParameters>]
+    Show-EnvironmentVariableItems [-Name] <String> [[-Scope] {Process | User | Machine}] [[-Separator] <String>] [<CommonParameters>]
 ..
 ```
 
@@ -204,7 +203,7 @@ SYNOPSIS
 
 SYNTAX
     Add-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {Process | User | Machine}] [-Separator <String>] [-Index
-    <Int32>] [-WhatIf] [-Confirm] [<CommonParameters>]
+    <Int32>] [-NoConfirmationRequired] [<CommonParameters>]
 ..
 ```
 
@@ -216,7 +215,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Add 'C:\foo' to $env:Path user environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -WhatIf
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -229,7 +228,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Insert 'C:\foo' as first item in $env:Path user environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -Index 0 -WhatIf
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -Index 0 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -242,7 +241,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Insert 'C:\foo' as second last item in $env:Path process environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope Process -Index -2 -WhatIf
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope Process -Index -2 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
@@ -275,11 +274,11 @@ SYNOPSIS
 
 
 SYNTAX
-    Remove-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {Process | User | Machine}] [-Separator <String>] [-WhatIf]
-    [-Confirm] [<CommonParameters>]
+    Remove-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {Process | User | Machine}] [-Separator <String>]
+    [-NoConfirmationRequired] [<CommonParameters>]
 
-    Remove-EnvironmentVariableItem [-Name] <String> [-Index] <Int32> [-Scope {Process | User | Machine}] [-Separator <String>] [-WhatIf]
-    [-Confirm] [<CommonParameters>]
+    Remove-EnvironmentVariableItem [-Name] <String> [-Index] <Int32> [-Scope {Process | User | Machine}] [-Separator <String>]
+    [-NoConfirmationRequired] [<CommonParameters>]
 ..    
 ```
 
@@ -291,7 +290,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
     PS > Remove 'C:\foo' from $env:Path user environment variable
 
-    PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope User -WhatIf
+    PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope User -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\foo;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -304,7 +303,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
     PS > Remove last item from $env:Path user environment variable
 
-    PS> Remove-EnvironmentVariableItem -Name path -Scope User -Index -1 -WhatIf
+    PS> Remove-EnvironmentVariableItem -Name path -Scope User -Index -1 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -338,14 +337,15 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
     PS> revi foo -in 1 -sc user -se '#'
 
-    Confirm
-    Are you sure you want to perform this action?
 
         Current Value:
             foo#cake#bar#cup
         New Value:
             foo#bar#cup
-    [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
+
+    Confirm
+    Are you sure you want to perform this action?
+    [Y] Yes  [N] No  [?]: y
 
     Name      : foo
     Scope     : User
@@ -372,5 +372,10 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
 ```
 
+
+## Contributors
+
+- [Mike Flynn](https://github.com/a1publishing) — author
+- [Claude Sonnet 4.6](https://claude.ai) (Anthropic) — v2.0.0: `-NoConfirmationRequired` parameter
 
 [MIT License (c) 2021](../master/LICENSE) [a1publishing.com](https://www.a1publishing.com)

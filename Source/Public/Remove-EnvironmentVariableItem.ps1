@@ -105,47 +105,48 @@ foo#bar#cup
 EnvironmentVariableItems PSCustomObject
 #>
 function Remove-EnvironmentVariableItem {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [CmdletBinding()]
     param (
         [Parameter(
             Mandatory,
             Position = 0
         )]
         [ValidatePattern("^[^=]+$")]
-            [String] $Name,        
+            [String] $Name,
         [Parameter(
             Mandatory,
             ParameterSetName = 'ByItem',
-            Position = 1 
-        )] 
-            [String] $Item,        
+            Position = 1
+        )]
+            [String] $Item,
         [Parameter(
             ParameterSetName = 'ByIndex',
-            Position = 1, 
+            Position = 1,
             Mandatory
         )] [int] $Index,
         [Parameter()]
             [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
-        [Parameter()] 
-            [String] $Separator = ";"
+        [Parameter()]
+            [String] $Separator = ";",
+        [Parameter()]
+            [switch] $NoConfirmationRequired
 
-    ) 
+    )
     process {
         $evis = [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
-        
+
         if ($PSCmdlet.ParameterSetName -eq 'ByIndex') {
             $result = $evis.RemoveItemByIndex($Index) -ne $False
         } elseif ($PSCmdlet.ParameterSetName -eq 'ByItem') {
             $result = $evis.RemoveItemByItem($Item) -ne $False
         }
-    
+
         if ($result -ne $False) {
-            $s = GetWhatIf
-            if ($PSCmdlet.ShouldProcess($s, '', '')){
+            if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
                 $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
                 $evis
             }
-        } else { 
+        } else {
             return
         }
     }

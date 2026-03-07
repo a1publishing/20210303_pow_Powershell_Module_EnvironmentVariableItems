@@ -68,26 +68,28 @@ EnvironmentVariableItems PSCustomObject
 
 #>
 function Add-EnvironmentVariableItem {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [CmdletBinding()]
     param (
         [Parameter(
             Mandatory,
             Position = 0
         )]
         [ValidatePattern("^[^=]+$")]
-            [String] $Name,        
+            [String] $Name,
         [Parameter(
             Mandatory,
             Position = 1
-        )] 
-            [String] $Item,        
+        )]
+            [String] $Item,
         [Parameter()]
             [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
         [Parameter()]
             [String] $Separator = ';',
-        [Parameter()] 
-            [int] $Index
-    )    
+        [Parameter()]
+            [int] $Index,
+        [Parameter()]
+            [switch] $NoConfirmationRequired
+    )
     process {
         $evis = [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
 
@@ -98,12 +100,11 @@ function Add-EnvironmentVariableItem {
         }
 
         if ($result -eq $True) {
-                $s = GetWhatIf
-            if ($PSCmdlet.ShouldProcess($s, '', '')){
+            if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
                 $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
                 $evis
             }
-        } else { 
+        } else {
             return
         }
     }
