@@ -74,10 +74,10 @@ PS> Get-Command *-EnvironmentVariableItem*
 
 CommandType     Name                                               Version    Source
 -----------     ----                                               -------    ------
-Function        Add-EnvironmentVariableItem                        1.4.1      environmentvariableitems
-Function        Get-EnvironmentVariableItems                       1.4.1      environmentvariableitems
-Function        Remove-EnvironmentVariableItem                     1.4.1      environmentvariableitems
-Function        Show-EnvironmentVariableItems                      1.4.1      environmentvariableitems
+Function        Add-EnvironmentVariableItem                        2.1.0      environmentvariableitems
+Function        Get-EnvironmentVariableItems                       2.1.0      environmentvariableitems
+Function        Remove-EnvironmentVariableItem                     2.1.0      environmentvariableitems
+Function        Show-EnvironmentVariableItems                      2.1.0      environmentvariableitems
 
 ```
 
@@ -103,18 +103,21 @@ PS> Get-Help Get-EnvironmentVariableItems -Examples
 ..
     -------------------------- EXAMPLE 1 --------------------------
 
-    PS > Get current process $env:Path EnvironmentVariableItems object
+    PS > Get $env:Path EnvironmentVariableItems for Process and Machine scopes (default)
 
     PS> Get-EnvironmentVariableItems -Name Path
 
     Name      : Path
     Scope     : Process
     Separator : ;
-    Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.
-                0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI
-                Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program
-                Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-    Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32, C:\WINDOWS, C:\WINDOWS\System32\Wbem…}
+    Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32
+    Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32}
+
+    Name      : Path
+    Scope     : Machine
+    Separator : ;
+    Value     : C:\WINDOWS\system32;C:\WINDOWS
+    Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 ```
 
 ```
@@ -122,7 +125,7 @@ PS> Get-Help Get-EnvironmentVariableItems -Examples
 
     PS > Get user $env:Path EnvironmentVariableItems object
 
-    PS> Get-EnvironmentVariableItems -Name Path -Scope User
+    PS> Get-EnvironmentVariableItems -Name Path -Scope UserOnly
 
     Name      : Path
     Scope     : User
@@ -136,7 +139,7 @@ PS> Get-Help Get-EnvironmentVariableItems -Examples
 
     PS > Get user $env:foo EnvironmentVariableItems object
 
-    PS> gevis foo -sc user -se '#'
+    PS> gevis foo -Scope UserOnly -Separator '#'
 
     Name      : foo
     Scope     : User
@@ -192,30 +195,30 @@ PS> Get-Help Show-EnvironmentVariableItems -Examples
 ```
     -------------------------- EXAMPLE 2 --------------------------
 
-    PS > Show PSModulePath system variable items
+    PS > Show $env:PSModulePath items for Process and Machine scopes
 
-    PS> Show-EnvironmentVariableItems PSModulePath -Scope Machine
+    PS> Show-EnvironmentVariableItems PSModulePath -Scope pam
 
     Machine
     0: C:\Program Files\WindowsPowerShell\Modules
     1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
     2: N:\lib\pow\mod
+
+    Process
+    0: C:\Users\michaelf\Documents\PowerShell\Modules
+    1: C:\Program Files\PowerShell\Modules
 ```
 ```
     -------------------------- EXAMPLE 3 --------------------------
 
-    PS > Show system, user and process items for $env:TMP environment variable
+    PS > Show $env:PSModulePath items for Machine scope only
 
-    PS> Show-EnvironmentVariableItems TMP
+    PS> Show-EnvironmentVariableItems PSModulePath -Scope MachineOnly
 
     Machine
-    0: C:\WINDOWS\TEMP
-
-    User
-    0: C:\Users\michaelf\AppData\Local\Temp
-
-    Process
-    0: C:\Users\michaelf\AppData\Local\Temp
+    0: C:\Program Files\WindowsPowerShell\Modules
+    1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+    2: N:\lib\pow\mod
 ```
 
 ### Add-EnvironmentVariableItem
@@ -243,7 +246,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Add 'C:\foo' to $env:Path user environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -NoConfirmationRequired
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope UserOnly -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -256,7 +259,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Insert 'C:\foo' as first item in $env:Path user environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope User -Index 0 -NoConfirmationRequired
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope UserOnly -Index 0 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -269,7 +272,7 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Insert 'C:\foo' as second last item in $env:Path process environment variable
 
-    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope Process -Index -2 -NoConfirmationRequired
+    PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope ProcessOnly -Index -2 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
@@ -282,12 +285,40 @@ PS> Get-Help Add-EnvironmentVariableItem -Examples
 
     PS > Add 'cake' as second item of $env:foo user environment variable
 
-    PS> aevi foo cake -sc user -in 1 -se '#' -wh
-    What if:
+    PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#'
+
         Current Value:
             foo#bar#cup
         New Value:
             foo#cake#bar#cup
+
+    Confirm
+    Are you sure you want to perform this action?
+    [Y] Yes  [N] No  [?]: y
+
+    Name      : foo
+    Scope     : User
+    Separator : #
+    Value     : foo#cake#bar#cup
+    Items     : {foo, cake, bar, cup}
+
+    -------------------------- EXAMPLE 5 --------------------------
+
+    PS > Add 'C:\foo' to $env:Path in both Process and Machine scopes (default)
+
+    PS> aevi path C:\foo -NoConfirmationRequired
+
+    Name      : Path
+    Scope     : Process
+    Separator : ;
+    Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\foo
+    Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32, C:\foo}
+
+    Name      : Path
+    Scope     : Machine
+    Separator : ;
+    Value     : C:\WINDOWS\system32;C:\WINDOWS;C:\foo
+    Items     : {C:\WINDOWS\system32, C:\WINDOWS, C:\foo}
 ```
 
 ### Remove-EnvironmentVariableItem
@@ -318,7 +349,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
     PS > Remove 'C:\foo' from $env:Path user environment variable
 
-    PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope User -NoConfirmationRequired
+    PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope UserOnly -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\foo;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -331,7 +362,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
 
     PS > Remove last item from $env:Path user environment variable
 
-    PS> Remove-EnvironmentVariableItem -Name path -Scope User -Index -1 -NoConfirmationRequired
+    PS> Remove-EnvironmentVariableItem -Name path -Scope UserOnly -Index -1 -NoConfirmationRequired
     What if:
         Current Value:
             C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
@@ -355,7 +386,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
     Process
     0: foo#cake#bar#cup
 
-    PS> sevis foo -sc user -se '#'
+    PS> sevis foo -Scope UserOnly -Separator '#'
 
     User
     0: foo
@@ -363,7 +394,7 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
     2: bar
     3: cup
 
-    PS> revi foo -in 1 -sc user -se '#'
+    PS> revi foo -Index 1 -Scope UserOnly -Separator '#'
 
 
         Current Value:
@@ -398,7 +429,28 @@ PS> Get-Help Remove-EnvironmentVariableItem -Examples
     PS> [Environment]::GetEnvironmentVariable('foo', 'User')
     foo#bar#cup
 
+    -------------------------- EXAMPLE 4 --------------------------
+
+    PS > Remove 'C:\foo' from $env:Path in both Process and Machine scopes (default)
+
+    PS> revi path C:\foo -NoConfirmationRequired
+
+    Name      : Path
+    Scope     : Process
+    Separator : ;
+    Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32
+    Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32}
+
+    Name      : Path
+    Scope     : Machine
+    Separator : ;
+    Value     : C:\WINDOWS\system32;C:\WINDOWS
+    Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 ```
+
+> **Note:** When using `-Index` with a multi-scope default (`ProcessAndMachine`), index positions may differ
+> between scopes — the same index may refer to different items in Process vs Machine. When removing by
+> index, specify a single scope (e.g., `-Scope MachineOnly`) to avoid unintended removals.
 
 
 ## Contributors
