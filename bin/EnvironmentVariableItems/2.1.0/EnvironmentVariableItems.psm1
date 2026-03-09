@@ -1,7 +1,9 @@
-#Region '.\_PrefixCode.ps1' 0
+﻿#Region '.\_PrefixCode.ps1' -1
+
 # Code in here will be prepended to top of the psm1-file.
-#EndRegion '.\_PrefixCode.ps1' 1
-#Region '.\Classes\EnvironmentVariableItems.ps1' 0
+#EndRegion '.\_PrefixCode.ps1' 2
+#Region '.\Classes\EnvironmentVariableItems.ps1' -1
+
 class EnvironmentVariableItems {
 
     ### Class variables
@@ -124,12 +126,12 @@ class EnvironmentVariableItems {
         [System.EnvironmentVariableTarget] $Scope,
         [String] $Separator
     ) {
-        # tidy (trim) local copy of value 
+        # tidy (trim) local copy of value
         $val = $this.GetValue($Name, $Scope)
-        if ($null -ne $val) {$val = $val.Trim($Separator)}
+        if ($val) {$val = $val.Trim($Separator)}
 
         $this.Items = [System.Collections.ArrayList] @()
-        if ($null -ne $val) {        
+        if ($val) {
             $this.Items = $val -split $Separator
         }
     }
@@ -275,8 +277,25 @@ class EnvironmentVariableItems {
         return $s
     }
 }
-#EndRegion '.\Classes\EnvironmentVariableItems.ps1' 273
-#Region '.\Private\GetWhatIf.ps1' 0
+#EndRegion '.\Classes\EnvironmentVariableItems.ps1' 274
+#Region '.\Private\ConfirmAction.ps1' -1
+
+function ConfirmAction {
+    param (
+        [String] $Message,
+        [switch] $NoConfirmationRequired
+    )
+    Write-Host $Message
+    if ($NoConfirmationRequired) { return $True }
+    $choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
+        [System.Management.Automation.Host.ChoiceDescription]::new('&Yes'),
+        [System.Management.Automation.Host.ChoiceDescription]::new('&No')
+    )
+    $Host.UI.PromptForChoice('Confirm', 'Are you sure you want to perform this action?', $choices, 0) -eq 0
+}
+#EndRegion '.\Private\ConfirmAction.ps1' 14
+#Region '.\Private\GetWhatIf.ps1' -1
+
 function GetWhatIf() {
     @"
 
@@ -288,11 +307,32 @@ function GetWhatIf() {
 "@
 }
 
-#EndRegion '.\Private\GetWhatIf.ps1' 11
-#Region '.\Public\Add-EnvironmentVariableItem.ps1' 0
+#EndRegion '.\Private\GetWhatIf.ps1' 12
+#Region '.\Private\Resolve-ScopeParameter.ps1' -1
+
+function Resolve-ScopeParameter {
+    param (
+        [Parameter(Mandatory)]
+        [string] $Scope
+    )
+    switch ($Scope) {
+        { $_ -in 'ProcessAndMachine', 'pam' } {
+            return @([System.EnvironmentVariableTarget]::Process, [System.EnvironmentVariableTarget]::Machine)
+        }
+        { $_ -in 'ProcessAndUser', 'pau' } {
+            return @([System.EnvironmentVariableTarget]::Process, [System.EnvironmentVariableTarget]::User)
+        }
+        'MachineOnly' { return @([System.EnvironmentVariableTarget]::Machine) }
+        'UserOnly'    { return @([System.EnvironmentVariableTarget]::User) }
+        default       { return @([System.EnvironmentVariableTarget]::Process) }
+    }
+}
+#EndRegion '.\Private\Resolve-ScopeParameter.ps1' 18
+#Region '.\Public\Add-EnvironmentVariableItem.ps1' -1
+
 <#
 .SYNOPSIS
-Adds an environment variable item for given Name, Item, Scope (default; 'Process') and Separator (';') and optional Index.
+Adds an environment variable item for given Name, Item, Scope (default: 'ProcessAndMachine') and Separator (';') and optional Index.
 
 .PARAMETER Name
 Environment variable name
@@ -301,57 +341,42 @@ Environment variable name
 An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Valid values:
+  ProcessAndMachine (pam) - updates both Process and Machine scopes [default]
+  ProcessAndUser    (pau) - updates both Process and User scopes
+  ProcessOnly             - updates Process scope only
+  MachineOnly             - updates Machine scope only
+  UserOnly                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Index
-Item index position (negative values work backwards through collection,-1 being the last item)
+Item index position (negative values work backwards through collection, -1 being the last item)
 
 .EXAMPLE
 
-Add 'C:\tmp' to $env:Path user environment variable
+Add 'C:\foo' to $env:Path in both Process and Machine scopes (default)
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope User -WhatIf
-What if:
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin;C:\tmp
+PS> aevi path C:\foo -NoConfirmationRequired
 
 .EXAMPLE
 
-Insert 'C:\tmp' as first item in $env:Path user environment variable
+Add 'C:\foo' to $env:Path in both Process and User scopes
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope User -Index 0 -WhatIf
-What if:
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
+PS> aevi path C:\foo -Scope pau -NoConfirmationRequired
 
 .EXAMPLE
 
-Insert 'C:\tmp' as second last item in $env:Path process environment variable
+Insert 'C:\foo' as first item in $env:Path Machine scope only
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope Process -Index -2 -WhatIf
-What if:
-    Current Value:
-        C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-    New Value:
-        C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
+PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope MachineOnly -Index 0 -NoConfirmationRequired
 
 .EXAMPLE
 
-PS > Add 'cake' as second item of $env:foo user environment variable
+Add 'cake' as second item of $env:foo user environment variable
 
-PS> aevi foo cake -sc user -in 1 -se '#' -wh
-What if:
-    Current Value:
-        foo#bar#cup
-    New Value:
-        foo#cake#bar#cup
+PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#' -NoConfirmationRequired
 
 .INPUTS
 
@@ -360,94 +385,107 @@ EnvironmentVariableItems PSCustomObject
 
 #>
 function Add-EnvironmentVariableItem {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [CmdletBinding()]
+    [Alias('aevi')]
     param (
         [Parameter(
             Mandatory,
             Position = 0
         )]
         [ValidatePattern("^[^=]+$")]
-            [String] $Name,        
+            [String] $Name,
         [Parameter(
             Mandatory,
             Position = 1
-        )] 
-            [String] $Item,        
+        )]
+            [String] $Item,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope = 'ProcessAndMachine',
         [Parameter()]
             [String] $Separator = ';',
-        [Parameter()] 
-            [int] $Index
-    )    
+        [Parameter()]
+            [int] $Index,
+        [Parameter()]
+            [switch] $NoConfirmationRequired
+    )
     process {
-        $evis = [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
+        foreach ($target in (Resolve-ScopeParameter $Scope)) {
+            $evis = [EnvironmentVariableItems]::new($Name, $target, $Separator)
 
-        if ($PSBoundParameters.ContainsKey('Index')) {
-            $result = $evis.AddItem($Item, $Index)
-        } else {
-            $result = $evis.AddItem($Item)
-        }
-
-        if ($result -eq $True) {
-                $s = GetWhatIf
-            if ($PSCmdlet.ShouldProcess($s, '', '')){
-                $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
-                $evis
+            if ($PSBoundParameters.ContainsKey('Index')) {
+                $result = $evis.AddItem($Item, $Index)
+            } else {
+                $result = $evis.AddItem($Item)
             }
-        } else { 
-            return
+
+            if ($result -eq $True) {
+                if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
+                    $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
+                    $evis
+                }
+            }
         }
     }
 }
-#EndRegion '.\Public\Add-EnvironmentVariableItem.ps1' 110
-#Region '.\Public\Get-EnvironmentVariableItems.ps1' 0
+#EndRegion '.\Public\Add-EnvironmentVariableItem.ps1' 99
+#Region '.\Public\Get-EnvironmentVariableItems.ps1' -1
+
 
 <#
 .SYNOPSIS
-_Gets an EnvironmentVariableItems PSCustomObject for a given Name, Scope (default; 'Process') and Separator (';').
+Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessAndMachine') and Separator (';').
+Returns one object per resolved scope.
 
 .PARAMETER Name
 Environment variable name
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Valid values:
+  ProcessAndMachine (pam) - returns objects for both Process and Machine scopes [default]
+  ProcessAndUser    (pau) - returns objects for both Process and User scopes
+  ProcessOnly             - returns object for Process scope only
+  MachineOnly             - returns object for Machine scope only
+  UserOnly                - returns object for User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .EXAMPLE
 
-Get current process $env:Path EnvironmentVariableItems PSCustomObject
+Get $env:Path EnvironmentVariableItems for Process and Machine scopes (default)
 
-PS> Get-EnvironmentVariableItems -Name Path 
+PS> Get-EnvironmentVariableItems -Name Path
 
 Name      : Path
 Scope     : Process
 Separator : ;
-Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.
-            0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI
-            Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program
-            Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32, C:\WINDOWS, C:\WINDOWS\System32\Wbem…}
+Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32
+Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32}
+
+Name      : Path
+Scope     : Machine
+Separator : ;
+Value     : C:\WINDOWS\system32;C:\WINDOWS
+Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 
 .EXAMPLE
 
 Get user $env:Path EnvironmentVariableItems PSCustomObject
 
-PS> Get-EnvironmentVariableItems -Name Path -Scope User
+PS> Get-EnvironmentVariableItems -Name Path -Scope UserOnly
 
 Name      : Path
 Scope     : User
 Separator : ;
-Value     : C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-Items     : {C:\tmp, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
+Value     : C:\foo;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
+Items     : {C:\foo, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
 
 .EXAMPLE
 
 Get user $env:foo EnvironmentVariableItems PSCustomObject
 
-PS> gevis foo -sc user -se '#'
+PS> gevis foo -Scope UserOnly -Separator '#'
 
 Name      : foo
 Scope     : User
@@ -462,24 +500,29 @@ EnvironmentVariableItems PSCustomObject
 #>
 function Get-EnvironmentVariableItems {
     [CmdletBinding()]
+    [Alias('gevis')]
     param (
         [Parameter(Mandatory)]
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope = 'ProcessAndMachine',
         [Parameter()]
             [String] $Separator = ';'
-    )    
+    )
     process {
-        [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
+        foreach ($target in (Resolve-ScopeParameter $Scope)) {
+            [EnvironmentVariableItems]::new($Name, $target, $Separator)
+        }
     }
 }
-#EndRegion '.\Public\Get-EnvironmentVariableItems.ps1' 73
-#Region '.\Public\Remove-EnvironmentVariableItem.ps1' 0
+#EndRegion '.\Public\Get-EnvironmentVariableItems.ps1' 87
+#Region '.\Public\Remove-EnvironmentVariableItem.ps1' -1
+
 <#
 .SYNOPSIS
-Removes an environment variable item for given Name, Item or Index, and Scope (default; 'Process') and Separator (';').
+Removes an environment variable item for given Name, Item or Index, Scope (default: 'ProcessAndMachine') and Separator (';').
 
 .PARAMETER Name
 Environment variable name
@@ -488,165 +531,117 @@ Environment variable name
 An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Valid values:
+  ProcessAndMachine (pam) - updates both Process and Machine scopes [default]
+  ProcessAndUser    (pau) - updates both Process and User scopes
+  ProcessOnly             - updates Process scope only
+  MachineOnly             - updates Machine scope only
+  UserOnly                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Index
-Item index position (negative values work backwards through collection,-1 being the last item)
+Item index position (negative values work backwards through collection, -1 being the last item)
 
 .EXAMPLE
 
-Remove 'C:\tmp' from $env:Path user environment variable
+Remove 'C:\foo' from $env:Path in both Process and Machine scopes (default)
 
-PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\tmp' -Scope User -WhatIf
-
-What if:
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\tmp;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
+PS> revi path C:\foo -NoConfirmationRequired
 
 .EXAMPLE
 
-Remove last item from $env:Path user environment variable
+Remove 'C:\foo' from $env:Path in User scope only
 
-PS> Remove-EnvironmentVariableItem -Name path -Scope User -Index -1 -WhatIf
-
-What if:
-
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
+PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope UserOnly -NoConfirmationRequired
 
 .EXAMPLE
 
-Remove second item from $env:foo user environment variable
+Remove last item from $env:Path in both Process and User scopes
 
-PS> sevis foo
-
-Machine
-0: mat#mop
-
-User
-0: foo#cake#bar#cup
-
-Process
-0: foo#cake#bar#cup
-
-PS> sevis foo -sc user -se '#'
-
-User
-0: foo
-1: cake
-2: bar
-3: cup
-
-PS> revi foo -in 1 -sc user -se '#'
-
-Confirm
-Are you sure you want to perform this action?
-
-    Current Value:
-        foo#cake#bar#cup
-    New Value:
-        foo#bar#cup
-[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-Name      : foo
-Scope     : User
-Separator : #
-Value     : foo#bar#cup
-Items     : {foo, bar, cup}
-
-PS> sevis foo
-
-Machine
-0: mat#mop
-
-User
-0: foo#bar#cup
-
-Process
-0: foo#cake#bar#cup
-
-PS> $env:foo
-foo#cake#bar#cup
-
-PS> [Environment]::GetEnvironmentVariable('foo', 'User')
-foo#bar#cup
+PS> revi path -Index -1 -Scope pau -NoConfirmationRequired
 
 .INPUTS
 
 .OUTPUTS
 EnvironmentVariableItems PSCustomObject
+
 #>
 function Remove-EnvironmentVariableItem {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [CmdletBinding()]
+    [Alias('revi')]
     param (
         [Parameter(
             Mandatory,
             Position = 0
         )]
         [ValidatePattern("^[^=]+$")]
-            [String] $Name,        
+            [String] $Name,
         [Parameter(
             Mandatory,
             ParameterSetName = 'ByItem',
-            Position = 1 
-        )] 
-            [String] $Item,        
+            Position = 1
+        )]
+            [String] $Item,
         [Parameter(
             ParameterSetName = 'ByIndex',
-            Position = 1, 
+            Position = 1,
             Mandatory
-        )] [int] $Index,
+        )]
+            [int] $Index,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
-        [Parameter()] 
-            [String] $Separator = ";"
-
-    ) 
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope = 'ProcessAndMachine',
+        [Parameter()]
+            [String] $Separator = ";",
+        [Parameter()]
+            [switch] $NoConfirmationRequired
+    )
     process {
-        $evis = [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
-        
-        if ($PSCmdlet.ParameterSetName -eq 'ByIndex') {
-            $result = $evis.RemoveItemByIndex($Index) -ne $False
-        } elseif ($PSCmdlet.ParameterSetName -eq 'ByItem') {
-            $result = $evis.RemoveItemByItem($Item) -ne $False
-        }
-    
-        if ($result -ne $False) {
-            $s = GetWhatIf
-            if ($PSCmdlet.ShouldProcess($s, '', '')){
-                $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
-                $evis
+        foreach ($target in (Resolve-ScopeParameter $Scope)) {
+            $evis = [EnvironmentVariableItems]::new($Name, $target, $Separator)
+
+            if ($PSCmdlet.ParameterSetName -eq 'ByIndex') {
+                $result = $evis.RemoveItemByIndex($Index) -ne $False
+            } elseif ($PSCmdlet.ParameterSetName -eq 'ByItem') {
+                $result = $evis.RemoveItemByItem($Item) -ne $False
             }
-        } else { 
-            return
+
+            if ($result -ne $False) {
+                if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
+                    $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
+                    $evis
+                }
+            }
         }
     }
 }
-#EndRegion '.\Public\Remove-EnvironmentVariableItem.ps1' 152
-#Region '.\Public\Show-EnvironmentVariableItems.ps1' 0
+#EndRegion '.\Public\Remove-EnvironmentVariableItem.ps1' 98
+#Region '.\Public\Show-EnvironmentVariableItems.ps1' -1
+
 <#
 .SYNOPSIS
-Show indexed list of environment variable items for given Name, Scope and Separator (default: ';').  Omitting Scope parameter shows list for all, ie., Machine, User and Process.
+Shows indexed list of environment variable items for given Name, Scope and Separator (default: ';').
+Omitting Scope shows all three scopes (Machine, User, Process).
 
 .PARAMETER Name
 Environment variable name
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Omit to show all three scopes. Valid values:
+  ProcessAndMachine (pam) - shows both Process and Machine scopes
+  ProcessAndUser    (pau) - shows both Process and User scopes
+  ProcessOnly             - shows Process scope only
+  MachineOnly             - shows Machine scope only
+  UserOnly                - shows User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .EXAMPLE
 
-Show $env:PSModulePath items
+Show $env:PSModulePath items for all scopes
 
 PS> Show-EnvironmentVariableItems PSModulePath
 
@@ -669,47 +664,57 @@ Process
 
 .EXAMPLE
 
-Show PSModulePath system variable items
+Show $env:PSModulePath items for Process and Machine scopes
 
-PS> Show-EnvironmentVariableItems PSModulePath -Scope Machine
+PS> Show-EnvironmentVariableItems PSModulePath -Scope pam
 
 Machine
 0: C:\Program Files\WindowsPowerShell\Modules
 1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
 2: N:\lib\pow\mod
 
+Process
+0: C:\Users\michaelf\Documents\PowerShell\Modules
+1: C:\Program Files\PowerShell\Modules
+
 .EXAMPLE
 
-Show system, user and process items for $env:TMP environment variable
+Show $env:PSModulePath items for Machine scope only
 
-PS> Show-EnvironmentVariableItems TMP
+PS> Show-EnvironmentVariableItems PSModulePath -Scope MachineOnly
 
 Machine
-0: C:\WINDOWS\TEMP
+0: C:\Program Files\WindowsPowerShell\Modules
+1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+2: N:\lib\pow\mod
 
-User
-0: C:\Users\michaelf\AppData\Local\Temp
-
-Process
-0: C:\Users\michaelf\AppData\Local\Temp
 #>
 function Show-EnvironmentVariableItems {
     [CmdletBinding()]
+    [Alias('sevis')]
     param (
         [Parameter(Mandatory)]
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope,
         [Parameter()]
             [String] $Separator = ';'
-    )    
+    )
     process {
-        if ($null -eq $Scope) {
+        if (-not $PSBoundParameters.ContainsKey('Scope')) {
             [EnvironmentVariableItems]::new($Name, $Separator).ShowIndexes()
         } else {
-            [EnvironmentVariableItems]::new($Name, $Scope, $Separator).ShowIndex($Scope)
+            $targets = Resolve-ScopeParameter $Scope
+            $evis = [EnvironmentVariableItems]::new($Name, $targets[0], $Separator)
+            Write-Host
+            foreach ($target in $targets) {
+                $evis.ShowIndex($target)
+            }
+            Write-Host
+            Write-Host
         }
     }
 }
-#EndRegion '.\Public\Show-EnvironmentVariableItems.ps1' 81
+#EndRegion '.\Public\Show-EnvironmentVariableItems.ps1' 98
