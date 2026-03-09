@@ -120,12 +120,12 @@ class EnvironmentVariableItems {
         [System.EnvironmentVariableTarget] $Scope,
         [String] $Separator
     ) {
-        # tidy (trim) local copy of value 
+        # tidy (trim) local copy of value
         $val = $this.GetValue($Name, $Scope)
-        if ($null -ne $val) {$val = $val.Trim($Separator)}
+        if ($val) {$val = $val.Trim($Separator)}
 
         $this.Items = [System.Collections.ArrayList] @()
-        if ($null -ne $val) {        
+        if ($val) {
             $this.Items = $val -split $Separator
         }
     }

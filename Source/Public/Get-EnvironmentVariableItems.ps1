@@ -1,49 +1,58 @@
 
 <#
 .SYNOPSIS
-_Gets an EnvironmentVariableItems PSCustomObject for a given Name, Scope (default; 'Process') and Separator (';').
+Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessAndMachine') and Separator (';').
+Returns one object per resolved scope.
 
 .PARAMETER Name
 Environment variable name
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Valid values:
+  ProcessAndMachine (pam) - returns objects for both Process and Machine scopes [default]
+  ProcessAndUser    (pau) - returns objects for both Process and User scopes
+  ProcessOnly             - returns object for Process scope only
+  MachineOnly             - returns object for Machine scope only
+  UserOnly                - returns object for User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .EXAMPLE
 
-Get current process $env:Path EnvironmentVariableItems PSCustomObject
+Get $env:Path EnvironmentVariableItems for Process and Machine scopes (default)
 
-PS> Get-EnvironmentVariableItems -Name Path 
+PS> Get-EnvironmentVariableItems -Name Path
 
 Name      : Path
 Scope     : Process
 Separator : ;
-Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.
-            0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI
-            Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program
-            Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32, C:\WINDOWS, C:\WINDOWS\System32\Wbem…}
+Value     : C:\Program Files\PowerShell\7;C:\WINDOWS\system32
+Items     : {C:\Program Files\PowerShell\7, C:\WINDOWS\system32}
+
+Name      : Path
+Scope     : Machine
+Separator : ;
+Value     : C:\WINDOWS\system32;C:\WINDOWS
+Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 
 .EXAMPLE
 
 Get user $env:Path EnvironmentVariableItems PSCustomObject
 
-PS> Get-EnvironmentVariableItems -Name Path -Scope User
+PS> Get-EnvironmentVariableItems -Name Path -Scope UserOnly
 
 Name      : Path
 Scope     : User
 Separator : ;
-Value     : C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-Items     : {C:\tmp, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
+Value     : C:\foo;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
+Items     : {C:\foo, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
 
 .EXAMPLE
 
 Get user $env:foo EnvironmentVariableItems PSCustomObject
 
-PS> gevis foo -sc user -se '#'
+PS> gevis foo -Scope UserOnly -Separator '#'
 
 Name      : foo
 Scope     : User
@@ -64,11 +73,14 @@ function Get-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope = 'ProcessAndMachine',
         [Parameter()]
             [String] $Separator = ';'
-    )    
+    )
     process {
-        [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
+        foreach ($target in (Resolve-ScopeParameter $Scope)) {
+            [EnvironmentVariableItems]::new($Name, $target, $Separator)
+        }
     }
 }

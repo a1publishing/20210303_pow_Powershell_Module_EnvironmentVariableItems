@@ -1,19 +1,25 @@
 <#
 .SYNOPSIS
-Show indexed list of environment variable items for given Name, Scope and Separator (default: ';').  Omitting Scope parameter shows list for all, ie., Machine, User and Process.
+Shows indexed list of environment variable items for given Name, Scope and Separator (default: ';').
+Omitting Scope shows all three scopes (Machine, User, Process).
 
 .PARAMETER Name
 Environment variable name
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Omit to show all three scopes. Valid values:
+  ProcessAndMachine (pam) - shows both Process and Machine scopes
+  ProcessAndUser    (pau) - shows both Process and User scopes
+  ProcessOnly             - shows Process scope only
+  MachineOnly             - shows Machine scope only
+  UserOnly                - shows User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .EXAMPLE
 
-Show $env:PSModulePath items
+Show $env:PSModulePath items for all scopes
 
 PS> Show-EnvironmentVariableItems PSModulePath
 
@@ -36,29 +42,30 @@ Process
 
 .EXAMPLE
 
-Show PSModulePath system variable items
+Show $env:PSModulePath items for Process and Machine scopes
 
-PS> Show-EnvironmentVariableItems PSModulePath -Scope Machine
+PS> Show-EnvironmentVariableItems PSModulePath -Scope pam
 
 Machine
 0: C:\Program Files\WindowsPowerShell\Modules
 1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
 2: N:\lib\pow\mod
 
+Process
+0: C:\Users\michaelf\Documents\PowerShell\Modules
+1: C:\Program Files\PowerShell\Modules
+
 .EXAMPLE
 
-Show system, user and process items for $env:TMP environment variable
+Show $env:PSModulePath items for Machine scope only
 
-PS> Show-EnvironmentVariableItems TMP
+PS> Show-EnvironmentVariableItems PSModulePath -Scope MachineOnly
 
 Machine
-0: C:\WINDOWS\TEMP
+0: C:\Program Files\WindowsPowerShell\Modules
+1: C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+2: N:\lib\pow\mod
 
-User
-0: C:\Users\michaelf\AppData\Local\Temp
-
-Process
-0: C:\Users\michaelf\AppData\Local\Temp
 #>
 function Show-EnvironmentVariableItems {
     [CmdletBinding()]
@@ -68,15 +75,23 @@ function Show-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope,
         [Parameter()]
             [String] $Separator = ';'
-    )    
+    )
     process {
-        if ($null -eq $Scope) {
+        if (-not $PSBoundParameters.ContainsKey('Scope')) {
             [EnvironmentVariableItems]::new($Name, $Separator).ShowIndexes()
         } else {
-            [EnvironmentVariableItems]::new($Name, $Scope, $Separator).ShowIndex($Scope)
+            $targets = Resolve-ScopeParameter $Scope
+            $evis = [EnvironmentVariableItems]::new($Name, $targets[0], $Separator)
+            Write-Host
+            foreach ($target in $targets) {
+                $evis.ShowIndex($target)
+            }
+            Write-Host
+            Write-Host
         }
     }
 }

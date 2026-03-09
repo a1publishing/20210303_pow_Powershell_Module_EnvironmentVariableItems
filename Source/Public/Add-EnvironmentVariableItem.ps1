@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Adds an environment variable item for given Name, Item, Scope (default; 'Process') and Separator (';') and optional Index.
+Adds an environment variable item for given Name, Item, Scope (default: 'ProcessAndMachine') and Separator (';') and optional Index.
 
 .PARAMETER Name
 Environment variable name
@@ -9,57 +9,42 @@ Environment variable name
 An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Scope
-Environment variable scope  (.NET enum System.EnvironmentVariableTarget)
+Target scope(s) for the operation. Valid values:
+  ProcessAndMachine (pam) - updates both Process and Machine scopes [default]
+  ProcessAndUser    (pau) - updates both Process and User scopes
+  ProcessOnly             - updates Process scope only
+  MachineOnly             - updates Machine scope only
+  UserOnly                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
 
 .PARAMETER Index
-Item index position (negative values work backwards through collection,-1 being the last item)
+Item index position (negative values work backwards through collection, -1 being the last item)
 
 .EXAMPLE
 
-Add 'C:\tmp' to $env:Path user environment variable
+Add 'C:\foo' to $env:Path in both Process and Machine scopes (default)
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope User -WhatIf
-What if:
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin;C:\tmp
+PS> aevi path C:\foo -NoConfirmationRequired
 
 .EXAMPLE
 
-Insert 'C:\tmp' as first item in $env:Path user environment variable
+Add 'C:\foo' to $env:Path in both Process and User scopes
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope User -Index 0 -WhatIf
-What if:
-    Current Value:
-        C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
-    New Value:
-        C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps;C:\Users\michaelf\AppData\Local\Programs\Microsoft VS Code\bin
+PS> aevi path C:\foo -Scope pau -NoConfirmationRequired
 
 .EXAMPLE
 
-Insert 'C:\tmp' as second last item in $env:Path process environment variable
+Insert 'C:\foo' as first item in $env:Path Machine scope only
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\tmp -Scope Process -Index -2 -WhatIf
-What if:
-    Current Value:
-        C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
-    New Value:
-        C:\Program Files\PowerShell\7;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\ProgramData\chocolatey\bin;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\Microsoft VS Code\bin;C:\tmp;C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps
+PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope MachineOnly -Index 0 -NoConfirmationRequired
 
 .EXAMPLE
 
-PS > Add 'cake' as second item of $env:foo user environment variable
+Add 'cake' as second item of $env:foo user environment variable
 
-PS> aevi foo cake -sc user -in 1 -se '#' -wh
-What if:
-    Current Value:
-        foo#bar#cup
-    New Value:
-        foo#cake#bar#cup
+PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#' -NoConfirmationRequired
 
 .INPUTS
 
@@ -83,7 +68,8 @@ function Add-EnvironmentVariableItem {
         )]
             [String] $Item,
         [Parameter()]
-            [System.EnvironmentVariableTarget] $Scope = [System.EnvironmentVariableTarget]::Process,
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+            [String] $Scope = 'ProcessAndMachine',
         [Parameter()]
             [String] $Separator = ';',
         [Parameter()]
@@ -92,21 +78,21 @@ function Add-EnvironmentVariableItem {
             [switch] $NoConfirmationRequired
     )
     process {
-        $evis = [EnvironmentVariableItems]::new($Name, $Scope, $Separator)
+        foreach ($target in (Resolve-ScopeParameter $Scope)) {
+            $evis = [EnvironmentVariableItems]::new($Name, $target, $Separator)
 
-        if ($PSBoundParameters.ContainsKey('Index')) {
-            $result = $evis.AddItem($Item, $Index)
-        } else {
-            $result = $evis.AddItem($Item)
-        }
-
-        if ($result -eq $True) {
-            if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
-                $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
-                $evis
+            if ($PSBoundParameters.ContainsKey('Index')) {
+                $result = $evis.AddItem($Item, $Index)
+            } else {
+                $result = $evis.AddItem($Item)
             }
-        } else {
-            return
+
+            if ($result -eq $True) {
+                if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
+                    $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
+                    $evis
+                }
+            }
         }
     }
 }

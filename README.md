@@ -36,7 +36,35 @@ Get-Module EnvironmentVariableItems -ListAvailable
 ModuleType Version    PreRelease Name                                PSEdition ExportedCommands
 ---------- -------    ---------- ----                                --------- ----------------
 Script     2.1.0                 EnvironmentVariableItems            Desk
+
 ```
+
+## What's New in v2.1.0
+
+**Multi-scope support** — a single command can now update multiple scopes simultaneously, eliminating the need to run the same command twice.
+
+```
+# Before: two commands required
+aevi path C:\foo -Scope Process
+aevi path C:\foo -Scope Machine
+
+# After: one command
+aevi path C:\foo                  # default scope is now ProcessAndMachine
+aevi path C:\foo -Scope pam       # explicit alias
+```
+
+### New `-Scope` values
+
+| Value | Alias | Description |
+|-------|-------|-------------|
+| `ProcessAndMachine` | `pam` | Updates Process **and** Machine scopes **[default]** |
+| `ProcessAndUser` | `pau` | Updates Process **and** User scopes |
+| `ProcessOnly` | | Updates Process scope only |
+| `MachineOnly` | | Updates Machine scope only |
+| `UserOnly` | | Updates User scope only |
+
+> **Note:** The old `-Scope Machine`, `-Scope User`, and `-Scope Process` values are no longer valid.
+> Migrate to `MachineOnly`, `UserOnly`, and `ProcessOnly` respectively.
 
 ## Usage
 
@@ -61,11 +89,11 @@ NAME
     Get-EnvironmentVariableItems
 
 SYNOPSIS
-    Gets an EnvironmentVariableItems object for a given Name, Scope (default: 'Process') and Separator (';').
+    Gets EnvironmentVariableItems object(s) for a given Name, Scope (default: 'ProcessAndMachine') and Separator (';').
 
 
 SYNTAX
-    Get-EnvironmentVariableItems [-Name] <String> [[-Scope] {Process | User | Machine}] [[-Separator] <String>] [<CommonParameters>]
+    Get-EnvironmentVariableItems [-Name] <String> [[-Scope] {ProcessAndMachine | pam | ProcessAndUser | pau | ProcessOnly | MachineOnly | UserOnly}] [[-Separator] <String>] [<CommonParameters>]
 ..    
 ```
 
@@ -130,7 +158,7 @@ SYNOPSIS
 
 
 SYNTAX
-    Show-EnvironmentVariableItems [-Name] <String> [[-Scope] {Process | User | Machine}] [[-Separator] <String>] [<CommonParameters>]
+    Show-EnvironmentVariableItems [-Name] <String> [[-Scope] {ProcessAndMachine | pam | ProcessAndUser | pau | ProcessOnly | MachineOnly | UserOnly}] [[-Separator] <String>] [<CommonParameters>]
 ..
 ```
 
@@ -198,11 +226,11 @@ NAME
     Add-EnvironmentVariableItem
 
 SYNOPSIS
-    Adds an environment variable item for given Name, Item, Scope (default: 'Process') and Separator (';') and optional Index.
+    Adds an environment variable item for given Name, Item, Scope (default: 'ProcessAndMachine') and Separator (';') and optional Index.
 
 
 SYNTAX
-    Add-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {Process | User | Machine}] [-Separator <String>] [-Index
+    Add-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {ProcessAndMachine | pam | ProcessAndUser | pau | ProcessOnly | MachineOnly | UserOnly}] [-Separator <String>] [-Index
     <Int32>] [-NoConfirmationRequired] [<CommonParameters>]
 ..
 ```
@@ -270,14 +298,14 @@ NAME
     Remove-EnvironmentVariableItem
 
 SYNOPSIS
-    Removes an environment variable item for a given Name, Item or Index, Scope (default: 'Process') and Separator (';').
+    Removes an environment variable item for a given Name, Item or Index, Scope (default: 'ProcessAndMachine') and Separator (';').
 
 
 SYNTAX
-    Remove-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {Process | User | Machine}] [-Separator <String>]
+    Remove-EnvironmentVariableItem [-Name] <String> [-Item] <String> [-Scope {ProcessAndMachine | pam | ProcessAndUser | pau | ProcessOnly | MachineOnly | UserOnly}] [-Separator <String>]
     [-NoConfirmationRequired] [<CommonParameters>]
 
-    Remove-EnvironmentVariableItem [-Name] <String> [-Index] <Int32> [-Scope {Process | User | Machine}] [-Separator <String>]
+    Remove-EnvironmentVariableItem [-Name] <String> [-Index] <Int32> [-Scope {ProcessAndMachine | pam | ProcessAndUser | pau | ProcessOnly | MachineOnly | UserOnly}] [-Separator <String>]
     [-NoConfirmationRequired] [<CommonParameters>]
 ..    
 ```
