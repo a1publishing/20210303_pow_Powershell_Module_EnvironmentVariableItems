@@ -1,11 +1,12 @@
-function GetWhatIf() {
+function GetScopeWhatIf {
+    param ($evis)
     @"
 
-    Current Value: 
+    [$($evis.Scope)]
+    Current Value:
         $($evis.Value)
-    New Value: 
+    New Value:
         $($evis.ToString())
-
 "@
 }
 

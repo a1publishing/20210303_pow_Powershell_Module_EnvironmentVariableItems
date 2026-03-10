@@ -77,17 +77,20 @@ function Remove-EnvironmentVariableItem {
             [switch] $NoConfirmationRequired
     )
     process {
+        $pending = [System.Collections.Generic.List[object]]::new()
         foreach ($target in (Resolve-ScopeParameter $Scope)) {
             $evis = [EnvironmentVariableItems]::new($Name, $target, $Separator)
-
-            if ($PSCmdlet.ParameterSetName -eq 'ByIndex') {
-                $result = $evis.RemoveItemByIndex($Index) -ne $False
+            $result = if ($PSCmdlet.ParameterSetName -eq 'ByIndex') {
+                $evis.RemoveItemByIndex($Index) -ne $False
             } elseif ($PSCmdlet.ParameterSetName -eq 'ByItem') {
-                $result = $evis.RemoveItemByItem($Item) -ne $False
+                $evis.RemoveItemByItem($Item) -ne $False
             }
-
-            if ($result -ne $False) {
-                if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
+            if ($result -ne $False) { $pending.Add($evis) }
+        }
+        if ($pending.Count -gt 0) {
+            $message = ($pending | ForEach-Object { GetScopeWhatIf $_ }) -join ''
+            if (ConfirmAction -Message $message -NoConfirmationRequired:$NoConfirmationRequired) {
+                foreach ($evis in $pending) {
                     $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
                     $evis
                 }

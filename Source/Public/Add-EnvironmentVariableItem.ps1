@@ -78,17 +78,20 @@ function Add-EnvironmentVariableItem {
             [switch] $NoConfirmationRequired
     )
     process {
+        $pending = [System.Collections.Generic.List[object]]::new()
         foreach ($target in (Resolve-ScopeParameter $Scope)) {
             $evis = [EnvironmentVariableItems]::new($Name, $target, $Separator)
-
-            if ($PSBoundParameters.ContainsKey('Index')) {
-                $result = $evis.AddItem($Item, $Index)
+            $result = if ($PSBoundParameters.ContainsKey('Index')) {
+                $evis.AddItem($Item, $Index)
             } else {
-                $result = $evis.AddItem($Item)
+                $evis.AddItem($Item)
             }
-
-            if ($result -eq $True) {
-                if (ConfirmAction -Message (GetWhatIf) -NoConfirmationRequired:$NoConfirmationRequired) {
+            if ($result -eq $True) { $pending.Add($evis) }
+        }
+        if ($pending.Count -gt 0) {
+            $message = ($pending | ForEach-Object { GetScopeWhatIf $_ }) -join ''
+            if (ConfirmAction -Message $message -NoConfirmationRequired:$NoConfirmationRequired) {
+                foreach ($evis in $pending) {
                     $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
                     $evis
                 }
