@@ -10,7 +10,7 @@
 
 RootModule = 'EnvironmentVariableItems.psm1'
 
-ModuleVersion = '2.2.0'
+ModuleVersion = '2.2.2'
 
 GUID = 'f5ed8644-7f61-49cb-b4e5-fe24e5e85262'
 
