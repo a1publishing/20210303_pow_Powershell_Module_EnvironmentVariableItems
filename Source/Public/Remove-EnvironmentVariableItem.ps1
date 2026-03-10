@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Removes an environment variable item for given Name, Item or Index, Scope (default: 'ProcessAndMachine') and Separator (';').
+Removes an environment variable item for given Name, Item or Index, Scope (default: 'ProcessOnly') and Separator (';').
 
 .PARAMETER Name
 Environment variable name
@@ -10,9 +10,9 @@ An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessAndMachine (pam) - updates both Process and Machine scopes [default]
+  ProcessOnly             - updates Process scope only [default]
+  ProcessAndMachine (pam) - updates both Process and Machine scopes
   ProcessAndUser    (pau) - updates both Process and User scopes
-  ProcessOnly             - updates Process scope only
   MachineOnly             - updates Machine scope only
   UserOnly                - updates User scope only
 
@@ -70,7 +70,7 @@ function Remove-EnvironmentVariableItem {
             [int] $Index,
         [Parameter()]
         [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessAndMachine',
+            [String] $Scope = 'ProcessOnly',
         [Parameter()]
             [String] $Separator = ";",
         [Parameter()]

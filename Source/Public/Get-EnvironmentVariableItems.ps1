@@ -1,7 +1,7 @@
 
 <#
 .SYNOPSIS
-Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessAndMachine') and Separator (';').
+Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessOnly') and Separator (';').
 Returns one object per resolved scope.
 
 .PARAMETER Name
@@ -9,9 +9,9 @@ Environment variable name
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessAndMachine (pam) - returns objects for both Process and Machine scopes [default]
+  ProcessOnly             - returns object for Process scope only [default]
+  ProcessAndMachine (pam) - returns objects for both Process and Machine scopes
   ProcessAndUser    (pau) - returns objects for both Process and User scopes
-  ProcessOnly             - returns object for Process scope only
   MachineOnly             - returns object for Machine scope only
   UserOnly                - returns object for User scope only
 
@@ -74,7 +74,7 @@ function Get-EnvironmentVariableItems {
             [String] $Name,
         [Parameter()]
         [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessAndMachine',
+            [String] $Scope = 'ProcessOnly',
         [Parameter()]
             [String] $Separator = ';'
     )

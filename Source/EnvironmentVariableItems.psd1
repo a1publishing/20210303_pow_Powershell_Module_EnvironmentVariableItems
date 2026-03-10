@@ -10,7 +10,7 @@
 
 RootModule = 'EnvironmentVariableItems.psm1'
 
-ModuleVersion = '2.1.0'
+ModuleVersion = '2.2.0'
 
 GUID = 'f5ed8644-7f61-49cb-b4e5-fe24e5e85262'
 
@@ -42,7 +42,8 @@ PrivateData = @{
 
         ProjectUri = 'https://github.com/a1publishing/Powershell_Module_EnvironmentVariableItems'
 
-        ReleaseNotes = '2.1.0: Multi-scope support — single command now updates Process + Machine or Process + User simultaneously (via ProcessAndMachine/pam, ProcessAndUser/pau); new default scope is ProcessAndMachine; breaking: old -Scope Machine/User/Process values replaced by MachineOnly/UserOnly/ProcessOnly'
+        ReleaseNotes = '2.1.0: Multi-scope support — single command now updates Process + Machine or Process + User simultaneously (via ProcessAndMachine/pam, ProcessAndUser/pau); new default scope is ProcessAndMachine; breaking: old -Scope Machine/User/Process values replaced by MachineOnly/UserOnly/ProcessOnly
+2.2.0: Reverted default Scope to ProcessOnly (safer, non-destructive default; use -Scope pam/pau to update multiple scopes)'
 
     }
 
