@@ -89,7 +89,7 @@ function Add-EnvironmentVariableItem {
             if ($result -eq $True) { $pending.Add($evis) }
         }
         if ($pending.Count -gt 0) {
-            $message = ($pending | ForEach-Object { GetScopeWhatIf $_ }) -join ''
+            $message = ($pending | ForEach-Object { GetScopeWhatIf $_ }) -join "`n"
             if (ConfirmAction -Message $message -NoConfirmationRequired:$NoConfirmationRequired) {
                 foreach ($evis in $pending) {
                     $evis.SetEnvironmentVariable($evis.Name, $evis.ToString(), $evis.Scope)
