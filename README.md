@@ -1,6 +1,6 @@
 # EnvironmentVariableItems
 .
-> Add, remove, show or get Windows environment variables.
+> Add, remove, show or get Windows environment variable items.
 
 ## Why this module?
 
