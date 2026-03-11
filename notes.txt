@@ -1,1 +1,0 @@
-$evi = "H:\dev\20210303_pow_Powershell_Module_EnvironmentVariableItems"
