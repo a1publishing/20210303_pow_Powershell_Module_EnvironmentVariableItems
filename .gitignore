@@ -3,12 +3,14 @@
 *.psd1.bak
 
 # Build output
+bin/
 output/
 build/
 release/
 dist/
 
 # Test results
+Test/tmp/
 testResults/
 *.Tests.xml
 coverage.xml

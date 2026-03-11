@@ -10,7 +10,7 @@
 
 RootModule = 'EnvironmentVariableItems.psm1'
 
-ModuleVersion = '2.2.3'
+ModuleVersion = '2.3.0'
 
 GUID = 'f5ed8644-7f61-49cb-b4e5-fe24e5e85262'
 
@@ -42,10 +42,17 @@ PrivateData = @{
 
         ProjectUri = 'https://github.com/a1publishing/Powershell_Module_EnvironmentVariableItems'
 
-        ReleaseNotes = '2.1.0: Multi-scope support — single command now updates Process + Machine or Process + User simultaneously (via ProcessAndMachine/pam, ProcessAndUser/pau); new default scope is ProcessAndMachine; breaking: old -Scope Machine/User/Process values replaced by Machine/User/Process
-        2.2.0: Reverted default Scope to Process (safer, non-destructive default; use -Scope pam/pau to update multiple scopes)
-        2.3.0: Refactored scope names; Process to Process, Machine to Machine, User to User
-            '
+        ReleaseNotes = '
+2.1.0: Multi-scope support — ProcessAndMachine/pam and ProcessAndUser/pau update two scopes in one command.
+       Default scope changed to ProcessAndMachine.
+       Breaking: -Scope Machine/User/Process renamed to MachineOnly/UserOnly/ProcessOnly.
+2.2.0: Default scope reverted to ProcessOnly — safer, non-destructive default.
+       Use -Scope pam/pau to persist changes across scopes.
+2.2.2: Multi-scope confirmation prompt overhauled — all scope changes shown together
+       with scope labels ([Process]/[Machine]/[User]) before a single confirm/cancel prompt.
+2.3.0: Scope names simplified back to originals: MachineOnly->Machine, UserOnly->User, ProcessOnly->Process.
+       Breaking change for users of v2.1.0-v2.2.x MachineOnly/UserOnly/ProcessOnly values.
+'
 
     }
 

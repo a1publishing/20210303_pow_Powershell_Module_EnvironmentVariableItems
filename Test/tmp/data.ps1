@@ -1,2 +1,0 @@
-ModulePath=H:\dev\20210303_pow_Powershell_Module_EnvironmentVariableItems\bin\EnvironmentVariableItems\2.2.3
-ModuleName=EnvironmentVariableItems

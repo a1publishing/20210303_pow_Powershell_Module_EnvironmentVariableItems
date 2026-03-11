@@ -33,7 +33,7 @@ PS> Get-Module EnvironmentVariableItems -ListAvailable
 
 ModuleType Version  Name                      ExportedCommands
 ---------- -------  ----                      ----------------
-Script     2.2.0    EnvironmentVariableItems  {Add-EnvironmentVariableItem, Get-EnvironmentVariableItems, ...}
+Script     2.3.0    EnvironmentVariableItems  {Add-EnvironmentVariableItem, Get-EnvironmentVariableItems, ...}
 ```
 
 ## Quick Start
@@ -146,6 +146,14 @@ PS> gevis path -Scope pam
 
 ## What's New
 
+### v2.3.0
+Scope names simplified back to their original values: `MachineOnly` → `Machine`, `UserOnly` → `User`, `ProcessOnly` → `Process`.
+
+> **Breaking change** for anyone on v2.1.0–v2.2.x using `MachineOnly`, `UserOnly`, or `ProcessOnly` in scripts — update those to `Machine`, `User`, `Process`.
+
+### v2.2.2
+Multi-scope confirmation prompt overhauled: all pending changes are now shown together — with `[Process]` / `[Machine]` / `[User]` labels — before a single confirm/cancel prompt, rather than prompting once per scope.
+
 ### v2.2.0
 Reverted default `-Scope` from `ProcessAndMachine` back to `Process` — the safer, non-destructive default. Use `-Scope pam` or `-Scope pau` to explicitly opt in to multi-scope persistence.
 
@@ -161,7 +169,7 @@ aevi path C:\foo -Scope Machine
 aevi path C:\foo -Scope pam
 ```
 
-> **Note:** The old `-Scope Machine`, `-Scope User`, and `-Scope Process` values were replaced by `Machine`, `User`, and `Process` in v2.1.0.
+> **Breaking change:** `-Scope Machine`, `-Scope User`, and `-Scope Process` were renamed to `MachineOnly`, `UserOnly`, `ProcessOnly` in v2.1.0, then simplified back to `Machine`, `User`, `Process` in v2.3.0.
 
 ## Contributors
 
