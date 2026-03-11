@@ -4,19 +4,21 @@
 
 ## Why this module?
 
-Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
+Somw Windows environment variables like `$env:Path` are semicolon-delimited lists and trying to update items within isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
+$addToPath = "C:\MyTool"
+$scope = "Process"
 $path = [System.Environment]::GetEnvironmentVariable(
     "PATH",
-    [System.EnvironmentVariableTarget]::Machine
+    [System.EnvironmentVariableTarget]::$scope
 )
-$newPath = "C:\MyTool"
 [System.Environment]::SetEnvironmentVariable(
     "PATH",
-    $path + ";$newPath",
-    [System.EnvironmentVariableTarget]::Process
+    $path + ";$addToPath",
+    [System.EnvironmentVariableTarget]::$scope
 )
+
 ```
 and then what about the registry?  
 
