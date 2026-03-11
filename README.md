@@ -1,6 +1,6 @@
 # EnvironmentVariableItems
-
-> Add, remove, and inspect items in Windows environment variables — instantly, in your current shell, without restarting.
+.
+> Add, remove, show or get Windows environment variables.
 
 ## Why this module?
 
