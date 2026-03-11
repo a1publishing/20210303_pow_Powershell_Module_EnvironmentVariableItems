@@ -6,11 +6,17 @@
 
 Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings. Adding a path means copy, paste, edit, save. And if you want it live _right now_, you either restart your shell or write boilerplate to update both the registry and the process environment.
 
-This module solves that. One command adds (or removes) an item and applies it immediately to your session.
+This module solves that. One command adds (or removes) an item and applies it immediately to your session and the registry, eg;
 
 ```powershell
-# Add C:\MyTool to Path
-aevi path C:\MyTool
+# Add C:\MyTool to Path and Machine
+Add-EnvironmentVariableItem Path C:\MyTool -Scope ProcessAndMachine
+# or shorthand
+aevi path C:\MyTool -sc pam
+# or if you know what you're doing
+aevi path C:\MyTool -sc pam -noc
+sevis path
+
 ```
 
 ## Installation
