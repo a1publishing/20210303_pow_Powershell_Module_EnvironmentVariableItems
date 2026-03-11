@@ -4,7 +4,9 @@
       "Bash(cp:*)",
       "Bash(cmd:*)",
       "Bash(powershell:*)",
-      "Bash(pwsh:*)"
+      "Bash(pwsh:*)",
+      "Bash(rm -rf \"H:/.claude\")",
+      "Read(//h//**)"
     ]
   }
 }
