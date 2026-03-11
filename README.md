@@ -4,7 +4,7 @@
 
 ## Why this module?
 
-Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings remembering and typing commands directly is not much easier.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
+Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
 $path = [System.Environment]::GetEnvironmentVariable(
@@ -20,7 +20,7 @@ $newPath = "C:\MyTool"
 ```
 and then what about the registry?  
 
-This module simplifies the process. One command adds (or removes) an item and applies it immediately, to your session and or registry if required.
+This module simplifies the process. One command adds (or removes) an item and applies it immediately to your session and or registry if required. 
 
 ```powershell
 # Add C:\MyTool to Path and Machine
