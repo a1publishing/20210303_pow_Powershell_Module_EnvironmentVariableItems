@@ -4,7 +4,23 @@
 
 ## Why this module?
 
-Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  This module simplifies the process. One command adds (or removes) an item and applies it immediately, to your session and or registry if required.
+Windows environment variables like `$env:Path` are semicolon-delimited lists — but the built-in tools treat them as opaque strings remembering and typing commands directly is not much easier.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
+
+```powershell
+$path = [System.Environment]::GetEnvironmentVariable(
+    "PATH",
+    [System.EnvironmentVariableTarget]::Machine
+)
+$newPath = "C:\MyTool"
+[System.Environment]::SetEnvironmentVariable(
+    "PATH",
+    $path + ";$newPath",
+    [System.EnvironmentVariableTarget]::Process
+)
+```
+and then what about the registry?  
+
+This module simplifies the process. One command adds (or removes) an item and applies it immediately, to your session and or registry if required.
 
 ```powershell
 # Add C:\MyTool to Path and Machine
@@ -16,6 +32,8 @@ aevi path C:\MyTool -sc pam -noc
 sevis path
 
 ```
+
+There's also the option to insert an item by item index, useful when you need a particular order for your environment variable items.
 
 ## Installation
 
