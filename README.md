@@ -9,7 +9,7 @@ Windows environment variables like `$env:Path` are semicolon-delimited lists —
 This module solves that. One command adds (or removes) an item and applies it immediately to your session.
 
 ```powershell
-# Add C:\MyTool to Path — available right now, no restart needed
+# Add C:\MyTool to Path
 aevi path C:\MyTool
 ```
 
