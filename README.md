@@ -4,7 +4,7 @@
 
 ## Why this module?
 
-There Windows environment variables like `$env:Path` whih are semicolon-delimited lists and trying to update items within them isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
+There are Windows environment variables like `$env:Path` whih are semicolon-delimited lists and trying to update items within them just isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
 $addToPath = "C:\MyTool"
@@ -27,8 +27,12 @@ This module simplifies the process. One command adds (or removes) an item and ap
 ```powershell
 # Add C:\MyTool to Path and Machine
 Add-EnvironmentVariableItem Path C:\MyTool -Scope ProcessAndMachine
+```
+
+```powershell
 # or shorthand
 aevi path C:\MyTool -sc pam
+
 # or if you know what you're doing
 aevi path C:\MyTool -sc pam -noc
 sevis path
