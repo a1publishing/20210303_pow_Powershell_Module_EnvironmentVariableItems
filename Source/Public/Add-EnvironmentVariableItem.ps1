@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Adds an environment variable item for given Name, Item, Scope (default: 'ProcessOnly') and Separator (';') and optional Index.
+Adds an environment variable item for given Name, Item, Scope (default: 'Process') and Separator (';') and optional Index.
 
 .PARAMETER Name
 Environment variable name
@@ -10,11 +10,11 @@ An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessOnly             - updates Process scope only [default]
+  Process             - updates Process scope only [default]
   ProcessAndMachine (pam) - updates both Process and Machine scopes
   ProcessAndUser    (pau) - updates both Process and User scopes
-  MachineOnly             - updates Machine scope only
-  UserOnly                - updates User scope only
+  Machine             - updates Machine scope only
+  User                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -38,13 +38,13 @@ PS> aevi path C:\foo -Scope pau -NoConfirmationRequired
 
 Insert 'C:\foo' as first item in $env:Path Machine scope only
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope MachineOnly -Index 0 -NoConfirmationRequired
+PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope Machine -Index 0 -NoConfirmationRequired
 
 .EXAMPLE
 
 Add 'cake' as second item of $env:foo user environment variable
 
-PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#' -NoConfirmationRequired
+PS> aevi foo cake -Scope User -Index 1 -Separator '#' -NoConfirmationRequired
 
 .INPUTS
 
@@ -68,8 +68,8 @@ function Add-EnvironmentVariableItem {
         )]
             [String] $Item,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessOnly',
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
+            [String] $Scope = 'Process',
         [Parameter()]
             [String] $Separator = ';',
         [Parameter()]

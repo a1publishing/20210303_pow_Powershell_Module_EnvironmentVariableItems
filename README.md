@@ -40,7 +40,7 @@ Script     2.2.0    EnvironmentVariableItems  {Add-EnvironmentVariableItem, Get-
 
 ```powershell
 sevis path                        # inspect all Path scopes (Machine, User, Process)
-aevi path C:\MyTool               # add to current session (ProcessOnly, default)
+aevi path C:\MyTool               # add to current session (Process, default)
 aevi path C:\MyTool -Scope pam    # add to session AND persist to Machine registry
 revi path C:\OldTool              # remove from current session
 ```
@@ -51,13 +51,13 @@ All cmdlets accept a `-Scope` parameter controlling which environment store(s) a
 
 | Value | Alias | Description |
 |-------|-------|-------------|
-| `ProcessOnly` | | Current session only — no elevation needed **[default]** |
+| `Process` | | Current session only — no elevation needed **[default]** |
 | `ProcessAndMachine` | `pam` | Session + Machine registry (requires elevation) |
 | `ProcessAndUser` | `pau` | Session + User registry |
-| `MachineOnly` | | Machine registry only (requires elevation) |
-| `UserOnly` | | User registry only |
+| `Machine` | | Machine registry only (requires elevation) |
+| `User` | | User registry only |
 
-**Why `ProcessOnly` is the default:** it's safe, immediate, and requires no elevation. If you restart your shell, the change is gone — which is exactly what you want when exploring. When you're ready to persist, add `-Scope pam` or `-Scope pau`.
+**Why `Process` is the default:** it's safe, immediate, and requires no elevation. If you restart your shell, the change is gone — which is exactly what you want when exploring. When you're ready to persist, add `-Scope pam` or `-Scope pau`.
 
 ## Cmdlets
 
@@ -83,7 +83,7 @@ Process
 ...
 
 # Filter to one scope
-PS> sevis path -Scope MachineOnly
+PS> sevis path -Scope Machine
 
 Machine
 0: C:\WINDOWS\system32
@@ -109,7 +109,7 @@ PS> aevi path C:\MyTool -Index -2
 PS> aevi path C:\MyTool -Scope pam
 
 # Custom separator (non-Path variable)
-PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#'
+PS> aevi foo cake -Scope User -Index 1 -Separator '#'
 ```
 
 ### Remove-EnvironmentVariableItem (`revi`)
@@ -124,7 +124,7 @@ PS> revi path C:\OldTool
 PS> revi path -Index -1
 
 # Remove from User scope by index
-PS> revi path -Index 2 -Scope UserOnly
+PS> revi path -Index 2 -Scope User
 ```
 
 ### Get-EnvironmentVariableItems (`gevis`)
@@ -132,7 +132,7 @@ PS> revi path -Index 2 -Scope UserOnly
 Returns `EnvironmentVariableItems` objects — useful for scripting and piping.
 
 ```powershell
-PS> gevis path -Scope ProcessOnly
+PS> gevis path -Scope Process
 
 Name      : Path
 Scope     : Process
@@ -147,7 +147,7 @@ PS> gevis path -Scope pam
 ## What's New
 
 ### v2.2.0
-Reverted default `-Scope` from `ProcessAndMachine` back to `ProcessOnly` — the safer, non-destructive default. Use `-Scope pam` or `-Scope pau` to explicitly opt in to multi-scope persistence.
+Reverted default `-Scope` from `ProcessAndMachine` back to `Process` — the safer, non-destructive default. Use `-Scope pam` or `-Scope pau` to explicitly opt in to multi-scope persistence.
 
 ### v2.1.0
 **Multi-scope support** — a single command can now update multiple scopes simultaneously:
@@ -161,7 +161,7 @@ aevi path C:\foo -Scope Machine
 aevi path C:\foo -Scope pam
 ```
 
-> **Note:** The old `-Scope Machine`, `-Scope User`, and `-Scope Process` values were replaced by `MachineOnly`, `UserOnly`, and `ProcessOnly` in v2.1.0.
+> **Note:** The old `-Scope Machine`, `-Scope User`, and `-Scope Process` values were replaced by `Machine`, `User`, and `Process` in v2.1.0.
 
 ## Contributors
 

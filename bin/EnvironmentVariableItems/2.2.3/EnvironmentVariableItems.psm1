@@ -323,8 +323,8 @@ function Resolve-ScopeParameter {
         { $_ -in 'ProcessAndUser', 'pau' } {
             return @([System.EnvironmentVariableTarget]::Process, [System.EnvironmentVariableTarget]::User)
         }
-        'MachineOnly' { return @([System.EnvironmentVariableTarget]::Machine) }
-        'UserOnly'    { return @([System.EnvironmentVariableTarget]::User) }
+        'Machine' { return @([System.EnvironmentVariableTarget]::Machine) }
+        'User'    { return @([System.EnvironmentVariableTarget]::User) }
         default       { return @([System.EnvironmentVariableTarget]::Process) }
     }
 }
@@ -333,7 +333,7 @@ function Resolve-ScopeParameter {
 
 <#
 .SYNOPSIS
-Adds an environment variable item for given Name, Item, Scope (default: 'ProcessOnly') and Separator (';') and optional Index.
+Adds an environment variable item for given Name, Item, Scope (default: 'Process') and Separator (';') and optional Index.
 
 .PARAMETER Name
 Environment variable name
@@ -343,11 +343,11 @@ An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessOnly             - updates Process scope only [default]
+  Process             - updates Process scope only [default]
   ProcessAndMachine (pam) - updates both Process and Machine scopes
   ProcessAndUser    (pau) - updates both Process and User scopes
-  MachineOnly             - updates Machine scope only
-  UserOnly                - updates User scope only
+  Machine             - updates Machine scope only
+  User                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -371,13 +371,13 @@ PS> aevi path C:\foo -Scope pau -NoConfirmationRequired
 
 Insert 'C:\foo' as first item in $env:Path Machine scope only
 
-PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope MachineOnly -Index 0 -NoConfirmationRequired
+PS> Add-EnvironmentVariableItem -Name path -Item C:\foo -Scope Machine -Index 0 -NoConfirmationRequired
 
 .EXAMPLE
 
 Add 'cake' as second item of $env:foo user environment variable
 
-PS> aevi foo cake -Scope UserOnly -Index 1 -Separator '#' -NoConfirmationRequired
+PS> aevi foo cake -Scope User -Index 1 -Separator '#' -NoConfirmationRequired
 
 .INPUTS
 
@@ -401,8 +401,8 @@ function Add-EnvironmentVariableItem {
         )]
             [String] $Item,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessOnly',
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
+            [String] $Scope = 'Process',
         [Parameter()]
             [String] $Separator = ';',
         [Parameter()]
@@ -438,7 +438,7 @@ function Add-EnvironmentVariableItem {
 
 <#
 .SYNOPSIS
-Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessOnly') and Separator (';').
+Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'Process') and Separator (';').
 Returns one object per resolved scope.
 
 .PARAMETER Name
@@ -446,11 +446,11 @@ Environment variable name
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessOnly             - returns object for Process scope only [default]
+  Process             - returns object for Process scope only [default]
   ProcessAndMachine (pam) - returns objects for both Process and Machine scopes
   ProcessAndUser    (pau) - returns objects for both Process and User scopes
-  MachineOnly             - returns object for Machine scope only
-  UserOnly                - returns object for User scope only
+  Machine             - returns object for Machine scope only
+  User                - returns object for User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -477,7 +477,7 @@ Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 
 Get user $env:Path EnvironmentVariableItems PSCustomObject
 
-PS> Get-EnvironmentVariableItems -Name Path -Scope UserOnly
+PS> Get-EnvironmentVariableItems -Name Path -Scope User
 
 Name      : Path
 Scope     : User
@@ -489,7 +489,7 @@ Items     : {C:\foo, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
 
 Get user $env:foo EnvironmentVariableItems PSCustomObject
 
-PS> gevis foo -Scope UserOnly -Separator '#'
+PS> gevis foo -Scope User -Separator '#'
 
 Name      : foo
 Scope     : User
@@ -510,8 +510,8 @@ function Get-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessOnly',
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
+            [String] $Scope = 'Process',
         [Parameter()]
             [String] $Separator = ';'
     )
@@ -526,7 +526,7 @@ function Get-EnvironmentVariableItems {
 
 <#
 .SYNOPSIS
-Removes an environment variable item for given Name, Item or Index, Scope (default: 'ProcessOnly') and Separator (';').
+Removes an environment variable item for given Name, Item or Index, Scope (default: 'Process') and Separator (';').
 
 .PARAMETER Name
 Environment variable name
@@ -536,11 +536,11 @@ An item of an environment variable (eg., 'C:\foo' in $env:Path of 'C:\foo;C:\bar
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessOnly             - updates Process scope only [default]
+  Process             - updates Process scope only [default]
   ProcessAndMachine (pam) - updates both Process and Machine scopes
   ProcessAndUser    (pau) - updates both Process and User scopes
-  MachineOnly             - updates Machine scope only
-  UserOnly                - updates User scope only
+  Machine             - updates Machine scope only
+  User                - updates User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -558,7 +558,7 @@ PS> revi path C:\foo -NoConfirmationRequired
 
 Remove 'C:\foo' from $env:Path in User scope only
 
-PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope UserOnly -NoConfirmationRequired
+PS> Remove-EnvironmentVariableItem -Name path -Item 'C:\foo' -Scope User -NoConfirmationRequired
 
 .EXAMPLE
 
@@ -595,8 +595,8 @@ function Remove-EnvironmentVariableItem {
         )]
             [int] $Index,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessOnly',
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
+            [String] $Scope = 'Process',
         [Parameter()]
             [String] $Separator = ";",
         [Parameter()]
@@ -639,9 +639,9 @@ Environment variable name
 Target scope(s) for the operation. Omit to show all three scopes. Valid values:
   ProcessAndMachine (pam) - shows both Process and Machine scopes
   ProcessAndUser    (pau) - shows both Process and User scopes
-  ProcessOnly             - shows Process scope only
-  MachineOnly             - shows Machine scope only
-  UserOnly                - shows User scope only
+  Process             - shows Process scope only
+  Machine             - shows Machine scope only
+  User                - shows User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -688,7 +688,7 @@ Process
 
 Show $env:PSModulePath items for Machine scope only
 
-PS> Show-EnvironmentVariableItems PSModulePath -Scope MachineOnly
+PS> Show-EnvironmentVariableItems PSModulePath -Scope Machine
 
 Machine
 0: C:\Program Files\WindowsPowerShell\Modules
@@ -704,7 +704,7 @@ function Show-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
             [String] $Scope,
         [Parameter()]
             [String] $Separator = ';'

@@ -10,8 +10,8 @@ function Resolve-ScopeParameter {
         { $_ -in 'ProcessAndUser', 'pau' } {
             return @([System.EnvironmentVariableTarget]::Process, [System.EnvironmentVariableTarget]::User)
         }
-        'MachineOnly' { return @([System.EnvironmentVariableTarget]::Machine) }
-        'UserOnly'    { return @([System.EnvironmentVariableTarget]::User) }
+        'Machine' { return @([System.EnvironmentVariableTarget]::Machine) }
+        'User'    { return @([System.EnvironmentVariableTarget]::User) }
         default       { return @([System.EnvironmentVariableTarget]::Process) }
     }
 }

@@ -55,23 +55,23 @@ Describe 'Resolve-ScopeParameter' -Tag 'Unit' {
         Get-Module -Name $ModuleName | Remove-Module -Force
     }
 
-    It 'ProcessOnly returns [Process]' {
+    It 'Process returns [Process]' {
         InModuleScope EnvironmentVariableItems {
-            $r = Resolve-ScopeParameter 'ProcessOnly'
+            $r = Resolve-ScopeParameter 'Process'
             $r | Should -HaveCount 1
             $r[0] | Should -Be ([System.EnvironmentVariableTarget]::Process)
         }
     }
-    It 'MachineOnly returns [Machine]' {
+    It 'Machine returns [Machine]' {
         InModuleScope EnvironmentVariableItems {
-            $r = Resolve-ScopeParameter 'MachineOnly'
+            $r = Resolve-ScopeParameter 'Machine'
             $r | Should -HaveCount 1
             $r[0] | Should -Be ([System.EnvironmentVariableTarget]::Machine)
         }
     }
-    It 'UserOnly returns [User]' {
+    It 'User returns [User]' {
         InModuleScope EnvironmentVariableItems {
-            $r = Resolve-ScopeParameter 'UserOnly'
+            $r = Resolve-ScopeParameter 'User'
             $r | Should -HaveCount 1
             $r[0] | Should -Be ([System.EnvironmentVariableTarget]::User)
         }
@@ -127,14 +127,14 @@ Describe 'Add-EnvironmentVariableItem' -Tag 'Unit' {
         Get-Module -Name $ModuleName | Remove-Module -Force
     }
 
-    It 'ProcessOnly adds to Process scope only' {
-        Add-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope ProcessOnly -NoConfirmationRequired
+    It 'Process adds to Process scope only' {
+        Add-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope Process -NoConfirmationRequired
         [Environment]::GetEnvironmentVariable($script:TestVar, 'Process') | Should -Be 'foo'
         [Environment]::GetEnvironmentVariable($script:TestVar, 'User') | Should -BeNullOrEmpty
     }
 
-    It 'UserOnly adds to User scope only' {
-        Add-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope UserOnly -NoConfirmationRequired
+    It 'User adds to User scope only' {
+        Add-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope User -NoConfirmationRequired
         [Environment]::GetEnvironmentVariable($script:TestVar, 'User') | Should -Be 'foo'
         [Environment]::GetEnvironmentVariable($script:TestVar, 'Process') | Should -BeNullOrEmpty
     }
@@ -182,10 +182,10 @@ Describe 'Remove-EnvironmentVariableItem' -Tag 'Unit' {
         Get-Module -Name $ModuleName | Remove-Module -Force
     }
 
-    It 'ProcessOnly removes from Process scope only' {
+    It 'Process removes from Process scope only' {
         [Environment]::SetEnvironmentVariable($script:TestVar, 'foo;bar', 'Process')
         [Environment]::SetEnvironmentVariable($script:TestVar, 'foo;bar', 'User')
-        Remove-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope ProcessOnly -NoConfirmationRequired
+        Remove-EnvironmentVariableItem -Name $script:TestVar -Item 'foo' -Scope Process -NoConfirmationRequired
         [Environment]::GetEnvironmentVariable($script:TestVar, 'Process') | Should -Be 'bar'
         [Environment]::GetEnvironmentVariable($script:TestVar, 'User') | Should -Be 'foo;bar'
     }
@@ -198,9 +198,9 @@ Describe 'Remove-EnvironmentVariableItem' -Tag 'Unit' {
         [Environment]::GetEnvironmentVariable($script:TestVar, 'User') | Should -Be 'bar'
     }
 
-    It 'Removes by index with ProcessOnly' {
+    It 'Removes by index with Process' {
         [Environment]::SetEnvironmentVariable($script:TestVar, 'foo;bar;baz', 'Process')
-        Remove-EnvironmentVariableItem -Name $script:TestVar -Index 1 -Scope ProcessOnly -NoConfirmationRequired
+        Remove-EnvironmentVariableItem -Name $script:TestVar -Index 1 -Scope Process -NoConfirmationRequired
         [Environment]::GetEnvironmentVariable($script:TestVar, 'Process') | Should -Be 'foo;baz'
     }
 }
@@ -219,15 +219,15 @@ Describe 'Get-EnvironmentVariableItems' -Tag 'Unit' {
         Get-Module -Name $ModuleName | Remove-Module -Force
     }
 
-    It 'ProcessOnly returns single object with Process scope' {
-        $result = Get-EnvironmentVariableItems -Name $script:TestVar -Scope ProcessOnly
+    It 'Process returns single object with Process scope' {
+        $result = Get-EnvironmentVariableItems -Name $script:TestVar -Scope Process
         $result | Should -HaveCount 1
         $result.Scope | Should -Be 'Process'
         $result.Items | Should -Contain 'foo'
     }
 
-    It 'UserOnly returns single object with User scope' {
-        $result = Get-EnvironmentVariableItems -Name $script:TestVar -Scope UserOnly
+    It 'User returns single object with User scope' {
+        $result = Get-EnvironmentVariableItems -Name $script:TestVar -Scope User
         $result | Should -HaveCount 1
         $result.Scope | Should -Be 'User'
         $result.Items | Should -Contain 'baz'
@@ -259,8 +259,8 @@ Describe 'Show-EnvironmentVariableItems' -Tag 'Unit' {
         { Show-EnvironmentVariableItems -Name $script:TestVar } | Should -Not -Throw
     }
 
-    It 'ProcessOnly shows without error' {
-        { Show-EnvironmentVariableItems -Name $script:TestVar -Scope ProcessOnly } | Should -Not -Throw
+    It 'Process shows without error' {
+        { Show-EnvironmentVariableItems -Name $script:TestVar -Scope Process } | Should -Not -Throw
     }
 
     It 'pau shows without error' {

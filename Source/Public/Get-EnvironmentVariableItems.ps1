@@ -1,7 +1,7 @@
 
 <#
 .SYNOPSIS
-Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'ProcessOnly') and Separator (';').
+Gets EnvironmentVariableItems PSCustomObject(s) for a given Name, Scope (default: 'Process') and Separator (';').
 Returns one object per resolved scope.
 
 .PARAMETER Name
@@ -9,11 +9,11 @@ Environment variable name
 
 .PARAMETER Scope
 Target scope(s) for the operation. Valid values:
-  ProcessOnly             - returns object for Process scope only [default]
+  Process             - returns object for Process scope only [default]
   ProcessAndMachine (pam) - returns objects for both Process and Machine scopes
   ProcessAndUser    (pau) - returns objects for both Process and User scopes
-  MachineOnly             - returns object for Machine scope only
-  UserOnly                - returns object for User scope only
+  Machine             - returns object for Machine scope only
+  User                - returns object for User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -40,7 +40,7 @@ Items     : {C:\WINDOWS\system32, C:\WINDOWS}
 
 Get user $env:Path EnvironmentVariableItems PSCustomObject
 
-PS> Get-EnvironmentVariableItems -Name Path -Scope UserOnly
+PS> Get-EnvironmentVariableItems -Name Path -Scope User
 
 Name      : Path
 Scope     : User
@@ -52,7 +52,7 @@ Items     : {C:\foo, C:\Users\michaelf\AppData\Local\Microsoft\WindowsApps}
 
 Get user $env:foo EnvironmentVariableItems PSCustomObject
 
-PS> gevis foo -Scope UserOnly -Separator '#'
+PS> gevis foo -Scope User -Separator '#'
 
 Name      : foo
 Scope     : User
@@ -73,8 +73,8 @@ function Get-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
-            [String] $Scope = 'ProcessOnly',
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
+            [String] $Scope = 'Process',
         [Parameter()]
             [String] $Separator = ';'
     )

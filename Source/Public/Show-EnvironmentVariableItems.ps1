@@ -10,9 +10,9 @@ Environment variable name
 Target scope(s) for the operation. Omit to show all three scopes. Valid values:
   ProcessAndMachine (pam) - shows both Process and Machine scopes
   ProcessAndUser    (pau) - shows both Process and User scopes
-  ProcessOnly             - shows Process scope only
-  MachineOnly             - shows Machine scope only
-  UserOnly                - shows User scope only
+  Process             - shows Process scope only
+  Machine             - shows Machine scope only
+  User                - shows User scope only
 
 .PARAMETER Separator
 Environment variable item separator (eg., ';' in $env:Path of 'C:\foo;C:\bar')
@@ -59,7 +59,7 @@ Process
 
 Show $env:PSModulePath items for Machine scope only
 
-PS> Show-EnvironmentVariableItems PSModulePath -Scope MachineOnly
+PS> Show-EnvironmentVariableItems PSModulePath -Scope Machine
 
 Machine
 0: C:\Program Files\WindowsPowerShell\Modules
@@ -75,7 +75,7 @@ function Show-EnvironmentVariableItems {
         [ValidatePattern("^[^=]+$")]
             [String] $Name,
         [Parameter()]
-        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'ProcessOnly', 'MachineOnly', 'UserOnly')]
+        [ValidateSet('ProcessAndMachine', 'pam', 'ProcessAndUser', 'pau', 'Process', 'Machine', 'User')]
             [String] $Scope,
         [Parameter()]
             [String] $Separator = ';'
