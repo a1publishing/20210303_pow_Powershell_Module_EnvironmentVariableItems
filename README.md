@@ -4,7 +4,7 @@
 
 ## Why this module?
 
-Some Windows environment variables like `$env:Path` are semicolon-delimited lists and trying to update items within isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
+There Windows environment variables like `$env:Path` whih are semicolon-delimited lists and trying to update items within them isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and command to update window path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
 $addToPath = "C:\MyTool"
