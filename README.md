@@ -3,7 +3,7 @@
 
 ## Why this module?
 
-There are some Windows environment variables, such as `$env:Path`, which are semicolon-delimited lists and trying to update items within them isn't always easy.  Built-in tools are available, for example at;
+There are some Windows environment variables, such as `$env:Path`, which are delimited lists and trying to update items within them isn't always easy.  Built-in tools are available, for example at;
 ```powershell
 Windows 11 -> Settings -> System -> About -> Advanced System Settings -> Advanced -> Environment Variables -> User or System variables -> Path
 ```
