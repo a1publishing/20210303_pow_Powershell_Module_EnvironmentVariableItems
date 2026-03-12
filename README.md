@@ -7,7 +7,7 @@ There are some Windows environment variables, such as `$env:Path`, which are del
 ```powershell
 Windows 11 -> Settings -> System -> About -> Advanced System Settings -> Advanced -> Environment Variables -> User or System variables -> Path
 ```
- and even then you're left wondering whether you then need a restart or not? Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "which framework and command to update windows path environment variable?"  If you know what you're doing you could do something like;
+Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "Which framework and commands to update windows path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
 $addToPath = "C:\MyTool"
