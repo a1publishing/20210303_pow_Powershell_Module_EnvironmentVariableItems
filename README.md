@@ -43,7 +43,7 @@ sevis path
 
 There's also options to insert an item by index; useful when you need a particular order for your environment variable items or to remove by index; easier for items like long path strings.
 
-I wonder whether Microsoft deliberately make it difficult to update your path variable with   inexperienced operators in mind?  Maybe so but at the expense of those who do know what they're doing! Hence EnvironmentVariableItems..
+I wonder whether Microsoft deliberately make it difficult to update your path variable with the casual user in mind.  Maybe so?  Anyway, at the expense too of those who know what they're doing! Hence EnvironmentVariableItems..
 
 ## Installation
 
