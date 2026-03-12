@@ -1,14 +1,17 @@
 # EnvironmentVariableItems
-.
-> Add, remove, show or get Windows environment variable items.
+> Show, add, remove or get Windows environment variable items.
 
 ## Why this module?
 
-There are Windows environment variables such as `$env:Path` which are semicolon-delimited lists and trying to update items within them just isn't easy.  Built-in tools are available but difficult to find.  Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "which framework and command to update windows path environment variable?"  If you know what you're doing you could do something like;
+There are some Windows environment variables, such as `$env:Path`, which are semicolon-delimited lists and trying to update items within them isn't always easy.  Built-in tools are available, for example at;
+```powershell
+Windows 11 -> Settings -> System -> About -> Advanced System Settings -> Advanced -> Environment Variables -> User or System variables -> Path
+```
+ and even then you're left wondering whether you then need a restart or not? Typing commands directly into a shell isn't much fun either.  Try this in your favourite copilot, for example; "which framework and command to update windows path environment variable?"  If you know what you're doing you could do something like;
 
 ```powershell
 $addToPath = "C:\MyTool"
-$scope = "Process"
+$scope = "Machine"
 $path = [System.Environment]::GetEnvironmentVariable(
     "PATH",
     [System.EnvironmentVariableTarget]::$scope
@@ -18,28 +21,29 @@ $path = [System.Environment]::GetEnvironmentVariable(
     $path + ";$addToPath",
     [System.EnvironmentVariableTarget]::$scope
 )
-
 ```
-and then what about the registry?  
+and then same again with `$scope = "Process"` when you don't want to close and reopen your shell.  
 
-This module simplifies the process. One command adds (or removes) an item and applies it immediately to your session and or registry if required. 
+This module simplifies the process wrapping the .NET framework commands with easy to use and remember Powershell cmdlets.  One command is all that's needed to simultaneously update the registry and currently running process, for example, shell or IDE.
 
 ```powershell
-# Add C:\MyTool to Path and Machine
-Add-EnvironmentVariableItem Path C:\MyTool -Scope ProcessAndMachine
+# Add C:\MyTool to Path 
+Add-EnvironmentVariableItem -Name Path -Item C:\MyTool -Scope ProcessAndMachine
 ```
+or
 
 ```powershell
-# or shorthand
+# Add C:\MyTool to Path (shorthand)
 aevi path C:\MyTool -sc pam
 
-# or if you know what you're doing
+# Add C:\MyTool to Path (if you know what you're doing)
 aevi path C:\MyTool -sc pam -noc
 sevis path
-
 ```
 
-There's also the option to insert an item by item index, useful when you need a particular order for your environment variable items.
+There's also options to insert an item by index; useful when you need a particular order for your environment variable items or to remove by index; easier for items like long path strings.
+
+I wonder whether Microsoft deliberately make it difficult to update your path variable with   inexperienced operators in mind?  Maybe so but at the expense of those who do know what they're doing! Hence EnvironmentVariableItems..
 
 ## Installation
 
@@ -67,10 +71,37 @@ Script     2.3.0    EnvironmentVariableItems  {Add-EnvironmentVariableItem, Get-
 ## Quick Start
 
 ```powershell
-sevis path                        # inspect all Path scopes (Machine, User, Process)
-aevi path C:\MyTool               # add to current session (Process, default)
-aevi path C:\MyTool -Scope pam    # add to session AND persist to Machine registry
-revi path C:\OldTool              # remove from current session
+# inspect all Path scopes (Machine, User, Process)
+Show-EnvironmentVariableItems -Name Path    
+# (sevis path)
+
+# add to current session (Process, default)
+Add-EnvironmentVariableItem -Name Path -Item C:\MyTool
+# (aevi path C:\MyTool)
+
+# add to session AND persist to Machine registry
+Add-EnvironmentVariableItem -Name Path -Item C:\MyTool -Scope ProcessAndMachine -NoConfirmationRequired
+# (aevi path C:\MyTool -Scope pam -noc)
+
+# remove from current session
+Remove-EnvironmentVariableItem -Name Path C:\OldTool -Scope ProcessAndMachine
+# (revi path C:\OldTool -sc pam)
+
+# add environment variable
+Add-EnvironmentVariableItem -Name trifle -Item 'sponge#custard#jelly#cream#topping'
+# (aevi trifle 'sponge#custard#jelly#cream#topping')
+
+# add an item by index (to environment variable with custom separator)
+Add-EnvironmentVariableItem -Name trifle -Item fruit -Index 1 -Separator '#'
+# (aevi trifle fruit -in 1 -se '#')
+
+# remove an item by index 
+Remove-EnvironmentVariableItem -Name trifle -Index -3 -Separator '#'
+# (revi trifle -in -3 -se '#')
+
+# remove environment variable
+Remove-EnvironmentVariableItem -Name trifle -Index 0
+# (revi trifle -in 0)
 ```
 
 ## Scope
@@ -173,6 +204,9 @@ PS> gevis path -Scope pam
 ```
 
 ## What's New
+
+### v2.3.1
+When `-NoConfirmationRequired` is set, the current/new value block is no longer shown — only the result object is output.
 
 ### v2.3.0
 Scope names simplified back to their original values: `MachineOnly` → `Machine`, `UserOnly` → `User`, `ProcessOnly` → `Process`.

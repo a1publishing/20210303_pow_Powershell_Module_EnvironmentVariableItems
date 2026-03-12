@@ -3,8 +3,8 @@ function ConfirmAction {
         [String] $Message,
         [switch] $NoConfirmationRequired
     )
-    Write-Host $Message
     if ($NoConfirmationRequired) { return $True }
+    Write-Host $Message
     $choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
         [System.Management.Automation.Host.ChoiceDescription]::new('&Yes'),
         [System.Management.Automation.Host.ChoiceDescription]::new('&No')

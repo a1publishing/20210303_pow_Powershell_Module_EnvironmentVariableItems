@@ -10,7 +10,7 @@
 
 RootModule = 'EnvironmentVariableItems.psm1'
 
-ModuleVersion = '2.3.0'
+ModuleVersion = '2.3.1'
 
 GUID = 'f5ed8644-7f61-49cb-b4e5-fe24e5e85262'
 
@@ -52,6 +52,7 @@ PrivateData = @{
        with scope labels ([Process]/[Machine]/[User]) before a single confirm/cancel prompt.
 2.3.0: Scope names simplified back to originals: MachineOnly->Machine, UserOnly->User, ProcessOnly->Process.
        Breaking change for users of v2.1.0-v2.2.x MachineOnly/UserOnly/ProcessOnly values.
+2.3.1: Suppress current/new value output when -NoConfirmationRequired is set; only the result object is shown.
 '
 
     }
