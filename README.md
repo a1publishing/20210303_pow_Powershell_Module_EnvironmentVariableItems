@@ -85,7 +85,7 @@ Add-EnvironmentVariableItem -Name Path -Item C:\MyTool -Scope ProcessAndMachine 
 
 # remove from current session
 Remove-EnvironmentVariableItem -Name Path C:\OldTool -Scope ProcessAndMachine
-# (revi path C:\OldTool -sc pam)
+# (revi path c:\oldtool -sc pam)
 
 # add environment variable
 Add-EnvironmentVariableItem -Name trifle -Item 'sponge#custard#jelly#cream#topping'
