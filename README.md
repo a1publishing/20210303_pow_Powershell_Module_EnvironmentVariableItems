@@ -205,6 +205,9 @@ PS> gevis path -Scope pam
 
 ## What's New
 
+### v2.3.2
+Updated project URI.
+
 ### v2.3.1
 When `-NoConfirmationRequired` is set, the current/new value block is no longer shown — only the result object is output.
 

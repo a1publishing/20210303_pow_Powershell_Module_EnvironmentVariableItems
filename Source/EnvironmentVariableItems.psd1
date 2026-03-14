@@ -10,7 +10,7 @@
 
 RootModule = 'EnvironmentVariableItems.psm1'
 
-ModuleVersion = '2.3.1'
+ModuleVersion = '2.3.2'
 
 GUID = 'f5ed8644-7f61-49cb-b4e5-fe24e5e85262'
 
@@ -38,9 +38,9 @@ PrivateData = @{
 
         Tags = @('environment', 'variable', 'EnvironmentVariable', 'Windows', 'path', 'scope', 'item', 'split')
 
-        LicenseUri = 'https://github.com/a1publishing/Powershell_Module_EnvironmentVariableItems/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/a1publishing/EnvironmentVariableItems/blob/master/LICENSE'
 
-        ProjectUri = 'https://github.com/a1publishing/Powershell_Module_EnvironmentVariableItems'
+        ProjectUri = 'https://github.com/a1publishing/EnvironmentVariableItems'
 
         ReleaseNotes = '
 2.1.0: Multi-scope support — ProcessAndMachine/pam and ProcessAndUser/pau update two scopes in one command.
@@ -53,6 +53,8 @@ PrivateData = @{
 2.3.0: Scope names simplified back to originals: MachineOnly->Machine, UserOnly->User, ProcessOnly->Process.
        Breaking change for users of v2.1.0-v2.2.x MachineOnly/UserOnly/ProcessOnly values.
 2.3.1: Suppress current/new value output when -NoConfirmationRequired is set; only the result object is shown.
+2.3.2: Updated project URI.
+
 '
 
     }
